@@ -24,7 +24,7 @@ First cd to the backend folder then in the terminal enter node login.js <br>
 There are three type of roles:user, admin, employee/instructor, member/user<br>
 First, you must register. Then, using the same credentials, you can log in and will be taken to the appropriate dashboard. When registering, make sure you select the appropriate role using the dropdown, and ensure the birth date is before the current date.<br>
 
-
+Contributers: Aishwarya Radhakrishnan, Rhea Pimenta, Carolina Bolynkh, Minji Kang, Shivani Nallapu
 
 
 
