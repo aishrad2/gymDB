@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym DB</title>
+    <link rel="stylesheet" href="assets/register.css">
+</head>
+
+<body>
+    <section class="box">
+        <h2>Create an Account</h2>
+        <form action="/register" method="POST">
+            <input type="text" name="firstname" class="input-field" placeholder="firstname" />
+            <input type="text" name="lastname" class="input-field" placeholder="lastname" />
+            <input type="date" name="dateOfBirth" class="input-field" placeholder="dateOfBirth" />
+            <input type="text" name="username" class="input-field" placeholder="username" />
+            <input type="password" name="password" class="input-field" placeholder="Password" />
+            <label for="account">Select account type</label>
+            <select name="account" id="account" onchange="toggleFields()">
+                <option value="">--Select--</option>
+                <option value="1">Member</option>
+                <option value="2">Employee</option>
+                <option value="3">Admin</option>
+            </select>
+            <div id="membershipField" style="display: none;">
+                <label for="membership">Select membership type</label>
+                <select name="membership" id="membership">
+                    <option value="1">Basic</option>
+                    <option value="2">Premium</option>
+                </select>
+            </div>
+            <div id="phoneField" style="display: none;">
+                <label for="phone">Phone Number</label>
+                <input type="tel" name="phone" id="phone" class="input-field" placeholder="Phone Number" />
+            </div>
+            <input type="submit" class="btn" value="REGISTER">
+        </form>
+
+    </section>
+    <script>
+        function toggleFields() {
+            const accountType = document.getElementById('account').value;
+            const membershipField = document.getElementById('membershipField');
+            const phoneField = document.getElementById('phoneField');
+
+            if (accountType === "1") { // Member
+                membershipField.style.display = 'block';
+                phoneField.style.display = 'none';
+            } else if (accountType === "2") { // Employee
+                membershipField.style.display = 'none';
+                phoneField.style.display = 'block';
+            } else {
+                membershipField.style.display = 'none';
+                phoneField.style.display = 'none';
+            }
+        }
+
+        // Initialize correctly on page load (e.g., for form resubmission)
+        window.onload = toggleFields;
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee</title>
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+
+  <body>
+    <section class="box" style="flex-direction: column; position: relative">
+      <button
+        type="button"
+        class="btn"
+        id="home"
+        style="width: 10%; top: 0; left: 10px; position: absolute"
+        onclick="home()"
+      >
+        HOME
+      </button>
+      <button
+        type="button"
+        class="btn"
+        id="home"
+        style="width: 10%; top: 0; right: 10px; position: absolute"
+        onclick="location.href='/logout';"
+      >
+        Log Out
+      </button>
+      <h3>Your profile Information:</h3>
+      <div class="profileInfo">
+        <div id="eName"></div>
+        <br />
+        <div id="eBirth"></div>
+        <br />
+        <div id="eRole"></div>
+        <br />
+        <div id="eUser"></div>
+        <div id="ePhone"></div>
+      </div>
+    </section>
+    <script>
+      fetch("/api/employeeProfile")
+        .then((response) => response.json())
+        .then((data) => {
+          let emp = data[0];
+          document.getElementById("eName").innerHTML =
+            "<b>Name: </b>" + emp.firstName + " " + emp.lastName;
+          document.getElementById("eBirth").innerHTML =
+            "<b>Birth Date: </b>" + emp.dateOfBirth.slice(0, 10);
+          let roleHTML = "<b>Role: </b>";
+          data.forEach((element) => {
+            roleHTML += element["roleName"] + ": $" + element["hourlyWage"] + ", ";
+          });
+          roleHTML = roleHTML.slice(0, roleHTML.length - 2);
+          document.getElementById("eRole").innerHTML = roleHTML;
+          document.getElementById("ePhone").innerHTML = "<b>Phone Number: </b>" + emp.phoneNumber;
+        });
+      function home() {
+        window.location.href = "employee";
+      }
+    </script>
+  </body>
+</html>

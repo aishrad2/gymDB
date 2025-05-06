@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Fitness Classes</title>
+  <link rel="stylesheet" href="assets/fitnessClasses.css" />
+</head>
+<body>
+
+  <header class="header">
+    <h1>My Upcoming Fitness Classes</h1>
+    <div class="filters">
+      <a href="/fitnessClasses" class="back-btn">Back to Classes</a>
+    </div>
+  </header>
+
+  <div class="allow-to-scroll">
+    <main class="card-container" id="class-cards">
+      
+    </main>
+  </div>
+
+  <script>
+    fetch('/api/current-user/classes')
+      .then(res => res.json())
+      .then(classes => {
+        const container = document.getElementById('class-cards');
+
+        classes.forEach(classReturned => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <header class="card-header">${classReturned.fitnessClassName}</header>
+            <div class="card-body">
+              <p>Type: ${classReturned.fitnessClassType}</p>
+              <p>Day: ${classReturned.dayName}</p>
+              <p>Start Time: ${classReturned.startTime}</p>
+              <p>End Time: ${classReturned.endTime}</p>
+              <p>Instructor: ${classReturned.firstName + " " + classReturned.lastName}</p>
+              <p>Room: ${classReturned.roomName}</p>
+              <button class="card-button-unenroll" data-id="${classReturned.fitnessClassId}">Unenroll</button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+
+        function unenrollFromClass(userId, classId) {
+        fetch('/api/unenroll', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: userId, fitnessClassId: classId })
+        })
+        .then(async response => {
+          const data = await response.json();
+          if (response.ok) {
+            alert('You have successfully unenrolled in the class!');
+          } else {
+            alert('There was an error unenrolling from the class.');
+          }
+        })
+        .catch(error => {
+          console.error('Unexpected error:', error);
+          alert('A network error occurred while enrolling.');
+        });
+      }
+        const buttons = document.querySelectorAll('.card-button-unenroll');
+        buttons.forEach(button => {
+          button.addEventListener('click', (e) => {
+            const fitnessClassId = e.target.dataset.id;
+            // const fitnessClassId = this.getAttribute('data-fitness-class-id');
+              fetch('/api/current-user')
+                .then(res => res.json())
+                .then(data => {
+                  console.log('data: ', data)
+                  const currentUserId = data.currentUserId;
+                  console.log('currentUser: ', data)
+                  console.log('fitnessClassId: ', fitnessClassId)
+                  unenrollFromClass(currentUserId, fitnessClassId);
+                })
+                .catch(error => {
+                  console.error('Error fetching current user:', error);
+                });
+          });
+        });
+      })
+      .catch(err => console.error('Failed to load fitness classes:', err));
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Membership</title>
+  <link rel="stylesheet" href="assets/membership.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Current Membership: <span id="membership-name">Loading...</span></h1>
+    <div class="membership-content">
+      <div class="membership-details">
+        <p class="fee">Monthly Fee: <strong id="membership-fee">$--</strong></p>
+        <p class="description" id="membership-description">Loading description...</p>
+      </div>
+      <div class="button-group">
+        <a class="btn" href="ModifyMembership.html">Modify</a>
+        <a class="btn" href="cancelMembership.html">Cancel</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Fetch current user's membership from backend
+    async function loadMembership() {
+      try {
+        const res = await fetch('http://localhost:3002/api/current-user/membership');
+        if (!res.ok) {
+          throw new Error('Failed to fetch membership info');
+        }
+
+        const data = await res.json();
+
+        // Inject data into the DOM
+        document.getElementById('membership-name').textContent = data.membershipName;
+        document.getElementById('membership-fee').textContent = `$${parseFloat(data.fee).toFixed(2)}`;
+        document.getElementById('membership-description').textContent = data.membershipDescription;
+      } catch (err) {
+        console.error('Error loading membership:', err);
+        document.getElementById('membership-name').textContent = 'Unavailable';
+        document.getElementById('membership-fee').textContent = '$--';
+        document.getElementById('membership-description').textContent = 'Could not load membership details.';
+      }
+    }
+
+
+
+
+    // Load membership on page load
+    loadMembership();
+  </script>
+</body>
+</html>

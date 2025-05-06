@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Screen</title>
+  <link rel="stylesheet" href="assets/paymentScreen.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Payment for <span id="plan-name">Loading...</span></h1>
+    <p class="amount">Amount: $<span id="plan-fee">Loading...</span></p>
+
+    <form id="payment-form">
+      <div class="form-field">
+        <label for="name">Name on Card</label>
+        <input type="text" id="name" name="name" placeholder="Enter your name" />
+      </div>
+      <div class="form-field">
+        <label for="card">Credit Card Number</label>
+        <input type="text" id="card" name="card" placeholder="Enter your card number" />
+      </div>
+      <div class="form-field">
+        <label for="exp">Expiration Date</label>
+        <input type="text" id="exp" name="exp" placeholder="MM/YY" />
+      </div>
+      <div class="form-field">
+        <label for="cvv">Security Code</label>
+        <input type="text" id="cvv" name="cvv" placeholder="CVV" />
+      </div>
+      <div class="form-field">
+        <label for="zip">ZIP/Postal Code</label>
+        <input type="text" id="zip" name="zip" placeholder="Enter your ZIP code" />
+      </div>
+
+      <p id="error-message" class="error-message"></p>
+
+      <button type="button" id="submit-payment" class="btn">Submit Payment</button>
+      <button type="button" id="cancel-button" class="back-btn">Cancel</button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('payment-form');
+    const errorMessage = document.getElementById('error-message');
+    const planName = document.getElementById('plan-name');
+    const planFee = document.getElementById('plan-fee');
+    const submitButton = document.getElementById('submit-payment');
+    const cancelButton = document.getElementById('cancel-button');
+  
+    const urlParams = new URLSearchParams(window.location.search);
+    const membershipId = urlParams.get('membershipId');
+  
+    let selectedPlan = null;
+  
+    async function loadPlanDetails() {
+      try {
+        const response = await fetch(`http://localhost:3002/api/memberships/${membershipId}`);
+        const planData = await response.json();
+  
+        selectedPlan = planData;
+        planName.textContent = planData.membershipName;
+        planFee.textContent = parseFloat(planData.fee).toFixed(2);
+      } catch (error) {
+        console.error('Error loading membership plan:', error);
+        errorMessage.textContent = 'Failed to load plan details.';
+      }
+    }
+  
+    submitButton.addEventListener('click', async () => {
+      const name = document.getElementById('name').value.trim();
+      const card = document.getElementById('card').value.trim();
+      const exp = document.getElementById('exp').value.trim();
+      const cvv = document.getElementById('cvv').value.trim();
+      const zip = document.getElementById('zip').value.trim();
+  
+      errorMessage.textContent = '';
+      //validation checks
+      if (!name || !card || !exp || !cvv || !zip) {
+        errorMessage.textContent = 'All fields are required.';
+        return;
+      }
+  
+      if (!/^[A-Za-z\s]+$/.test(name)) {
+        errorMessage.textContent = 'Name can only contain letters.';
+        return;
+      }
+  
+      if (!/^\d{16}$/.test(card)) {
+        errorMessage.textContent = 'Credit card number must be 16 digits.';
+        return;
+      }
+  
+      if (!/^\d{2}\/\d{2}$/.test(exp)) {
+        errorMessage.textContent = 'Expiration date must be in MM/YY format.';
+        return;
+      }
+  
+      if (!/^\d{3}$/.test(cvv)) {
+        errorMessage.textContent = 'Security code must be 3 digits.';
+        return;
+      }
+  
+      if (!/^\d{5}$/.test(zip)) {
+        errorMessage.textContent = 'ZIP/Postal code must be 5 digits.';
+        return;
+      }
+  
+      try {
+        const response = await fetch(`http://localhost:3002/api/current-user/membership`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ membershipId: selectedPlan.membershipId }),
+        });
+  
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to update membership');
+        }
+  
+        alert('Payment successful!');
+        window.location.href = 'membershipScreen.html';
+      } catch (error) {
+        console.error('Error submitting payment:', error);
+        errorMessage.textContent = 'Payment submission failed.';
+      }
+    });
+  
+    cancelButton.addEventListener('click', () => {
+      alert('Payment process canceled.');
+      window.location.href = 'membershipScreen.html';
+    });
+  
+    window.onload = loadPlanDetails;
+  </script>
+</body>
+</html>

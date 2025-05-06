@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Modify Membership</title>
+  <link rel="stylesheet" href="assets/modifyMembership.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Modify Membership</h1>
+    <div id="plans-container">
+   
+    </div>
+    <button class="back-btn" onclick="goBack()">Back</button>
+  </div>
+
+  <script>
+    // Fetch the available membership plans from the backend
+    async function loadMembershipPlans() {
+      try {
+        const response = await fetch('http://localhost:3002/api/memberships');
+        const memberships = await response.json();
+        
+        const plansContainer = document.getElementById('plans-container');
+        memberships.forEach(plan => {
+          const planDiv = document.createElement('div');
+          planDiv.classList.add('plan');
+          planDiv.id = `${plan.membershipName.toLowerCase()}-plan`;
+
+          //turn fee into number 
+          const fee = parseFloat(plan.fee).toFixed(2);
+
+          planDiv.innerHTML = `
+            <h2 class="plan-title">${plan.membershipName}</h2>
+            <p class="fee">Monthly Fee: $${fee}</p>
+            <p class="description">${plan.membershipDescription}</p>
+            <button class="btn" onclick="selectPlan(${plan.membershipId})">I want ${plan.membershipName}</button>
+          `;
+
+          plansContainer.appendChild(planDiv);
+        });
+      } catch (error) {
+        console.error('Error loading membership plans:', error);
+      }
+    }
+
+    // Called when a user selects a membership plan
+    function selectPlan(membershipId) {
+      // Redirect to the payment screen after selecting a plan
+      window.location.href = `PaymentScreen.html?membershipId=${membershipId}`;
+    }
+
+    // Back button logic (returns to membershipScreen.html)
+    function goBack() {
+      window.location.href = 'membershipScreen.html';
+    }
+
+    // Load membership plans when the page loads
+    window.onload = loadMembershipPlans;
+  </script>
+</body>
+</html>

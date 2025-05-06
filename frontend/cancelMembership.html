@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Membership Cancel</title>
+  <link rel="stylesheet" href="assets/cancelMembership.css" />
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Membership Cancel</h1>
+    <p class="description">
+      Are you sure you want to cancel your gym membership?<br />
+      Your subscription will be canceled. You will not be billed again.
+    </p>
+    <div class="button-group">
+      <button class="btn" id="yes-button">Yes</button>
+      <button class="btn" id="no-button">No</button>
+    </div>
+  </div>
+
+  <script>
+       document.getElementById('yes-button').addEventListener('click', async () => {
+      try {
+        // Make an API call to cancel the current user's membership
+        const response = await fetch('http://localhost:3002/api/current-user/membership', {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          
+          const errorText = await response.text();
+          console.error('Error response:', errorText);
+          alert('Failed to cancel membership. Please try again later.');
+          return;
+        }
+
+        const data = await response.json();
+        alert(data.message); 
+        // sucessful cancelation
+        window.location.href = 'CanceledMembershipConfiramtion.html';
+      } catch (error) {
+        console.error('Error canceling membership:', error);
+        alert('An error occurred while canceling your membership.');
+      }
+    });
+
+    document.getElementById('no-button').addEventListener('click', () => {
+      window.location.href = 'membershipScreen.html'; 
+    });
+  </script>
+</body>
+</html>

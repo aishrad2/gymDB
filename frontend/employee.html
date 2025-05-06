@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee</title>
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+
+  <body>
+    <section class="box" style="position: relative">
+      <div>
+        <button
+          type="button"
+          class="btn"
+          id="home"
+          style="width: 10%; top: 0; right: 10px; position: absolute"
+          onclick="location.href='/logout';"
+        >
+          Log Out
+        </button>
+        <h3>Welcome Employee!</h3>
+        <br />
+        <button type="button" class="btn" id="classButton" onclick="classes()">
+          Fitness Classes
+        </button>
+        <button type="button" class="btn" id="profileButton" onclick="profile()">Profile</button>
+      </div>
+    </section>
+    <script>
+      function classes() {
+        window.location.href = "employeeClasses";
+      }
+      function profile() {
+        window.location.href = "employeeProfile";
+      }
+    </script>
+  </body>
+</html>

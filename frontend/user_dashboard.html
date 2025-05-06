@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gym Member Dashboard</title>
+    <link rel="stylesheet" href="assets/dashboard.css" />
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+      <div class="username">Welcome, <span id="username">JohnDoe</span></div>
+      <div>
+        <a href="/logout">Log Out</a>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <h1>Dashboard</h1>
+    <div class="dashboard">
+      <a href="/fitnessClasses" class="box-link">
+        <div class="dashboard-box">Fitness Classes</div>
+      </a>
+      <a href="equip_search.html" class="box-link">
+        <div class="dashboard-box">Equipment</div>
+      </a>
+      <a href="membershipScreen.html" class="box-link">
+        <div class="dashboard-box">Memberships</div>
+      </a>
+    </div>
+  </body>
+  <script>
+    fetch('/api/current-user')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('username').textContent = data.username;
+    });
+  </script>
+</html>

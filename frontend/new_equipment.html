@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Class</title>
+    <link rel="stylesheet" href="assets/new_equip.css" />
+  </head>
+
+  <body>
+    <section class="box" style="height: 550px; position: relative">
+      <button
+        type="button"
+        class="btn"
+        id="home"
+        style="width: 10%; top: 0; left: 10px; position: absolute"
+        onclick="window.location.href = 'admin_dashboard.html';"
+      > 
+        HOME
+      </button>
+      <div style="width: 20%; flex-direction: row">
+        <div style="padding: 0 0 45px">Equipment Name:</div>
+        <div style="padding: 0 0 45px">Muscle Group:</div>
+        <div style="padding: 0 0 45px">Room Name:</div>
+        <div style="padding: 0 0 45px">Quantity:</div>
+      </div>
+      <div style="width: 50%; margin: -10% 0 -10%">
+
+        <form action="/api/newEquip" method="POST" >
+        <div style="display:flex; flex-direction: column;">
+          <input
+            type="text"
+            name="equipmentName"
+            class="input-field"
+            style="padding: 10px"
+            placeholder="Equipment Name"
+          />
+          <select
+            name="muscleGroup"
+            style="
+              height: 40px;
+              border-radius: 5px;
+              border: 2px solid #303030;
+              background-color: #d9d8d8b3;
+              margin: 10px 0;
+            "
+            id="musclegroup-add"
+          >
+            <option value="">Select</option>
+          </select>
+
+          <select
+            name="roomName"
+            style="
+              height: 40px;
+              border-radius: 5px;
+              border: 2px solid #303030;
+              background-color: #d9d8d8b3;
+              margin: 10px 0;
+            "
+            id="room-add"
+
+          >
+          <option value="">Select</option>
+        </select>
+          <input
+            type="number"
+            min="0"
+            name="quantity"
+            class="input-field"
+            placeholder="Equipment Quantity"
+          />
+
+          <input type="submit" class="btn" value="ADD" />
+          </div>
+        </form>
+      </div>
+    </section>
+    <script>
+      
+
+      async function populateFilters() {
+        try {
+          const [muscleGroupRes, roomRes] = await Promise.all([
+            fetch("/api/musclegroups"),
+            fetch("/api/rooms"),
+          ]);
+          const muscleGroups = await muscleGroupRes.json();
+          const rooms = await roomRes.json();
+
+          const muscleGroupSelect = document.getElementById("musclegroup-add");
+          const roomSelect = document.getElementById("room-add");
+
+          muscleGroups.forEach((group) => {
+            const option = document.createElement("option");
+            option.value = group.muscleGroupId;
+            option.textContent = group.muscleGroupName;
+            muscleGroupSelect.appendChild(option);
+          });
+
+          rooms.forEach((room) => {
+            const option = document.createElement("option");
+            option.value = room.roomId;
+            option.textContent = room.roomName;
+            roomSelect.appendChild(option);
+          });
+        } catch (err) {
+          console.error("Error loading filters:", err);
+        }
+      }
+
+      window.onload = populateFilters;
+    </script>
+  </body>
+</html>

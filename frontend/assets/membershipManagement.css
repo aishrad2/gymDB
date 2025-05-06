@@ -1,0 +1,127 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  height: 100vh;
+  background: linear-gradient(-45deg, #377d9b, #ebeae9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  background: white;
+  padding: 40px;
+  width: 90%;
+  max-width: 1000px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.title span {
+  color: #377d9b;
+}
+
+.membership-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.membership-table th,
+.membership-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #88e4cc;
+}
+
+.membership-table th {
+  background-color: #d9d8d8b3;
+  color: #303030;
+}
+
+.membership-table tr:hover {
+  background-color: #f0f9ff;
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #377d9b;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #2e6c89;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.form label {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+  color: #303030;
+}
+
+.form input,
+.form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 6px;
+  border: 2px solid #303030;
+  background-color: #d9d8d8b3;
+  border-radius: 6px;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  color: #000;
+}
+
+.form input::placeholder,
+.form textarea::placeholder {
+  color: #303030;
+}
+
+.form input:focus,
+.form textarea:focus {
+  outline: none;
+  border-color: #377d9b;
+  box-shadow: 0 0 0 2px rgba(55, 125, 155, 0.2);
+}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Class</title>
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+
+  <body>
+    <section class="box" style="height: 550px; position: relative">
+      <button
+        type="button"
+        class="btn"
+        id="home"
+        style="width: 10%; top: 0; left: 10px; position: absolute"
+        onclick="home()"
+      >
+        HOME
+      </button>
+      <button
+        type="button"
+        class="btn"
+        id="home"
+        style="width: 10%; top: 0; right: 10px; position: absolute"
+        onclick="location.href='/logout';"
+      >
+        Log Out
+      </button>
+      <div style="width: 25%; flex-direction: row">
+        <div style="padding: 0 0 40px">Class Name:</div>
+        <div style="padding: 0 0 40px">Class Type:</div>
+        <div style="padding: 0 0 40px">Start Time:</div>
+        <div style="padding: 0 0 40px">End Time:</div>
+        <div style="padding: 0 0 40px">Days of Week:</div>
+        <div style="padding: 0 0 40px">Class Capacity:</div>
+        <div style="padding: 0 0 40px">Room Name:</div>
+      </div>
+      <div style="width: 50%; margin: -10% 0 -10%">
+        <form action="/api/employeeNewClass" method="POST">
+          <input
+            type="text"
+            name="className"
+            class="input-field"
+            style="padding: 10px"
+            placeholder="Class Name"
+          />
+          <select
+            name="classType"
+            style="
+              height: 40px;
+              border-radius: 5px;
+              border: 2px solid #303030;
+              background-color: #d9d8d8b3;
+              margin: 10px 0;
+            "
+          >
+            <option value="Strength Training">Strength Training</option>
+            <option value="Yoga/Flexibility">Yoga/Flexibility</option>
+            <option value="Circuit Training">Circuit Training</option>
+            <option value="Cardio">Cardio</option>
+          </select>
+          <input type="time" name="start" class="input-field" placeholder="Start" />
+          <input type="time" name="end" class="input-field" placeholder="End" />
+          <div
+            style="
+              height: 45px;
+              border-radius: 5px;
+              border: 2px solid #303030;
+              background-color: #d9d8d8b3;
+              margin: 10px 0;
+            "
+          >
+            <input type="checkbox" id="mon" name="days" value="1" />
+            <label for="mon">Monday</label>
+            <input type="checkbox" id="tues" name="days" value="2" />
+            <label for="tues">Tuesday</label>
+            <input type="checkbox" id="wed" name="days" value="3" />
+            <label for="wed">Wednesday</label>
+            <input type="checkbox" id="thurs" name="days" value="4" />
+            <label for="thurs">Thursday</label>
+            <input type="checkbox" id="fri" name="days" value="5" />
+            <label for="fri">Friday</label> <br />
+            <input type="checkbox" id="sat" name="days" value="6" />
+            <label for="sat">Saturday</label>
+            <input type="checkbox" id="sun" name="days" value="7" />
+            <label for="sun">Sunday</label>
+          </div>
+          <input
+            type="number"
+            min="0"
+            name="classCap"
+            class="input-field"
+            placeholder="Class Capacity"
+          />
+          <select
+            name="roomName"
+            style="
+              height: 40px;
+              border-radius: 5px;
+              border: 2px solid #303030;
+              background-color: #d9d8d8b3;
+              margin: 10px 0;
+            "
+            id="rooms"
+          ></select>
+          <input type="submit" class="btn" value="ADD" />
+        </form>
+      </div>
+    </section>
+    <script>
+      fetch("/api/roomNames")
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          let roomsHTML = "";
+          data.forEach((element) => {
+            roomsHTML +=
+              '<option value="' + element["roomName"] + '">' + element["roomName"] + "</option>";
+          });
+          document.getElementById("rooms").innerHTML = roomsHTML;
+        });
+      function home() {
+        window.location.href = "employee";
+      }
+    </script>
+  </body>
+</html>

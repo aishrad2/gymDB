@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gym DB</title>
+  <link rel="stylesheet" href="assets/fitnessClasses.css" />
+</head>
+<body>
+
+  <header class="header0"> 
+    <h1 id="username"></h1>
+  </header>
+  
+  <header class="header">
+    <h1>Upcoming Fitness Classes at the Gym</h1>
+    <div class="filters">
+      <label for="class-type">Filter by Class Type:</label>
+      <select id="class-type">
+        <option value="">All</option>
+        <option value="Strength Training">Strength Training</option>
+        <option value="Cardio">Cardio</option>
+        <option value="Yoga-Flexibility">Yoga-Flexibility</option>
+        <option value="Circuit Training">Circuit Training</option>
+      </select>
+
+      <label for="instructor">Filter by Instructor:</label>
+      <select id="instructor">
+        <option value="">All</option>
+      </select>
+      <a href="/user_dashboard.html">Back to Dashboard</a>
+
+      
+      <script>
+        fetch('/api/current-user')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('username').textContent = 'Welcome, ' + data.username;
+        });
+        fetch('/api/instructors')
+          .then(response => response.json())
+          .then(data => {
+            const select = document.getElementById('instructor');
+      
+            data.forEach(instructor => {
+              const option = document.createElement('option');
+              option.value = instructor.name;
+              option.textContent = instructor.name;
+              select.appendChild(option);
+            });
+          })
+          .catch(error => {
+            console.error('Error loading instructors:', error);
+          });
+      </script>      
+
+      <a href="/myFitnessClasses" class="view-classes-btn">View My Fitness Classes</a>
+    </div>
+  </header>
+
+  <div class="allow-to-scroll">
+    <main class="card-container" id="class-cards">
+      
+      <script>
+        function fetchClasses() {
+          const classType = document.getElementById('class-type').value;
+          const instructor = document.getElementById('instructor').value;
+          let url = '/api/fitness-classes';
+          if (classType) {
+            url = `/api/filter-type/${classType}`;
+          }
+          if (instructor) {
+            url = `/api/filter-instructor/${instructor}`;
+          }
+          console.log("url: ", url)
+          fetch(url)
+            .then(res => res.json())
+            .then(classes => {
+              renderClasses(classes);
+            })
+            .catch(err => console.error('Failed to load fitness classes:', err));
+        }
+
+        function renderClasses(classes) {
+          const container = document.getElementById('class-cards');
+          container.innerHTML = '';
+          classes.forEach(classReturned => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            classReturned = classReturned
+            card.innerHTML = `
+              <header class="card-header">${classReturned.fitnessClassName}</header>
+              <div class="card-body">
+                <p>Type: ${classReturned.fitnessClassType}</p>
+                <p>Day: ${classReturned.dayName}</p>
+                <p>Start Time: ${classReturned.startTime}</p>
+                <p>End Time: ${classReturned.endTime}</p>
+                <p>Instructor: ${classReturned.firstName + " " + classReturned.lastName}</p>
+                <p>Room: ${classReturned.roomName}</p>
+                <button class="card-button" data-fitness-class-id="${classReturned.fitnessClassId}">
+                Enroll
+                </button>
+              </div>
+            `;
+            container.appendChild(card);
+          })
+          document.querySelectorAll('.card-button').forEach(button => {
+            button.addEventListener('click', function() {
+              const fitnessClassId = this.getAttribute('data-fitness-class-id');
+              fetch('/api/current-user')
+                .then(res => res.json())
+                .then(data => {
+                  console.log('data: ', data)
+                  const currentUserId = data.currentUserId;
+                  console.log('currentUser: ', data)
+                  console.log('fitnessClassId: ', fitnessClassId)
+                  enrollInClass(currentUserId, fitnessClassId);
+                })
+                .catch(error => {
+                  console.error('Error fetching current user:', error);
+                });
+            });
+        });
+        }
+
+      function enrollInClass(userId, classId) {
+        console.log('userId, classId: ', userId, classId)
+        fetch('/api/enroll', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: userId, fitnessClassId: classId })
+        })
+        .then(async response => {
+          const data = await response.json();
+          if (response.ok) {
+            alert('You have successfully enrolled in the class!');
+          } else {
+            alert(data.message || 'There was an error enrolling in the class.');
+          }
+        })
+        .catch(error => {
+          console.error('Unexpected error:', error);
+          alert('A network error occurred while enrolling.');
+        });
+      }
+        document.getElementById('class-type').addEventListener('change', fetchClasses);
+        document.getElementById('instructor').addEventListener('change', fetchClasses);
+        fetchClasses();
+      </script>      
+    </main>
+  </div>
+
+</body>
+</html>

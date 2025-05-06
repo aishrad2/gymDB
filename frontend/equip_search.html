@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Gym Equipment Search</title>
+    <link rel="stylesheet" href="assets/equip.css" />
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="username">Welcome, <span id="username">username</span></div>
+      <div>
+        <a href="/logout">Log Out</a>
+      </div>
+    </div>
+    <div class="search-container">
+      <h1>Search Gym Equipment</h1>
+
+      <input
+        type="text"
+        id="search-bar"
+        placeholder="Search equipment..."
+        style="width: 400px; padding: 10px; border-radius: 10px"
+      />
+      <button onclick="toggleFilters()">Filter</button>
+      <button onclick="performSearch()">Search</button>
+
+      <div id="filter-options">
+        <div class="filter-group">
+          <label for="musclegroup-filter">Muscle Group:</label>
+          <select id="musclegroup-filter">
+            <option value="">Select</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="room-filter">Location:</label>
+          <select id="room-filter">
+            <option value="">Select</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="results" style="margin-top: 30px">
+      <!-- Search results will go here -->
+    </div>
+
+    <!--------------------------------------------------------------------------------------------------->
+    <script>
+      function toggleFilters() {
+        const filterOptions = document.getElementById("filter-options");
+        filterOptions.style.display =
+          filterOptions.style.display === "none" ? "inline-flex" : "none";
+      }
+
+      async function performSearch() {
+        const searchQuery = document.getElementById("search-bar").value;
+        const muscleGroupId =
+          document.getElementById("musclegroup-filter").value;
+        const roomId = document.getElementById("room-filter").value;
+
+        try {
+          const equipmentRes = await fetch("/api/search", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              text: searchQuery,
+              muscleGroupId: muscleGroupId,
+              roomId: roomId,
+            }),
+          });
+
+          const equipmentResults = await equipmentRes.json();
+
+          const resultsDiv = document.getElementById("results");
+          if (equipmentResults.length === 0) {
+            resultsDiv.innerHTML = "<p>No equipment found.</p>";
+            return;
+          }
+
+          resultsDiv.innerHTML =
+            "<h2 style='margin-bottom:25px' >Search Results</h2>";
+          resultsDiv.insertAdjacentHTML(
+            "beforeend",
+            `<div id="results-container" class="results-container"></div>`
+          );
+
+          const resultsDivNoHeader =
+            document.getElementById("results-container");
+          equipmentResults.forEach((eq) => {
+            resultsDivNoHeader.innerHTML += `
+        <div class="equipment-result" id=${eq.equipmentId.toString()}>
+          <p><strong>${eq.equipmentName}</strong></p>
+          <p>Muscle Group: ${eq.muscleGroupName}</p>
+          <p>Location: ${eq.roomName}</p>
+          <p id=current-quantity-${eq.equipmentId}>Quantity: ${eq.quantity}</p>
+          <button onclick="rentEq(${eq.equipmentId}, ${eq.quantity})" style="margin: 4px" id=rent-button-${eq.equipmentId}>Rent</button>
+        </div>
+      `;
+
+      
+          });
+        } catch (err) {
+          console.error("Error loading results:", err);
+        }
+      }
+
+      async function rentEq(equipmentId, quantityAvailable) {
+        const rentingEquipment = document.getElementById(equipmentId);
+
+        if (document.getElementById("rent-quantity-" + equipmentId) == null) {
+          rentingEquipment.innerHTML += `
+                    <input
+                    type="text"
+                    id="rent-quantity-${equipmentId}"
+                    placeholder="Enter quantity..."
+                    style="padding: 10px; border-radius: 10px; border: 1px solid black; margin: 5px"
+                    />
+        `;
+          document.getElementById("rent-button-" + equipmentId).innerText =
+            "Confirm Rent";
+        } else {// the user is clicking confirm rent
+
+          const quantityRequested = parseInt(document.getElementById("rent-quantity-" + equipmentId).value);
+
+          if (quantityRequested < 1 || quantityRequested > quantityAvailable || isNaN(quantityRequested)) {
+            const prevErrors = rentingEquipment.querySelectorAll(".quantity-error");
+            prevErrors.forEach((e) => e.remove());
+
+            rentingEquipment.innerHTML += `
+                <p style="color:red" class=quantity-error>Invalid quantity.</p>
+            `;
+          } else {
+            const newQuantity = quantityAvailable - quantityRequested;
+
+            // change displayed quantity
+            document.getElementById(
+              "current-quantity-" + equipmentId
+            ).textContent = "Quantity: " + newQuantity;
+
+            // confirmation message & clear error messages & remove input
+            const prevErrors =
+              rentingEquipment.querySelectorAll(".quantity-error");
+            prevErrors.forEach((e) => e.remove());
+            document.getElementById("rent-quantity-" + equipmentId).remove();
+            document.getElementById("rent-button-" + equipmentId).innerText =
+              "Rent";
+
+            rentingEquipment.innerHTML += `
+                <p style="color:green" class=quantity-error>Equipment rental successful!</p>
+            `;
+            try {
+              const equipmentItem = await fetch("/api/rent", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  equipmentId: equipmentId,
+                  newQuantity: newQuantity,
+                }),
+              });
+
+            } catch {}
+          }
+        }
+      }
+
+      async function populateFilters() {
+        try {
+          const [muscleGroupRes, roomRes] = await Promise.all([
+            fetch("/api/musclegroups"),
+            fetch("/api/rooms"),
+          ]);
+          const muscleGroups = await muscleGroupRes.json();
+          const rooms = await roomRes.json();
+
+          const muscleGroupSelect =
+            document.getElementById("musclegroup-filter");
+          const roomSelect = document.getElementById("room-filter");
+
+          muscleGroups.forEach((group) => {
+            const option = document.createElement("option");
+            option.value = group.muscleGroupId;
+            option.textContent = group.muscleGroupName;
+            muscleGroupSelect.appendChild(option);
+          });
+
+          rooms.forEach((room) => {
+            const option = document.createElement("option");
+            option.value = room.roomId;
+            option.textContent = room.roomName;
+            roomSelect.appendChild(option);
+          });
+        } catch (err) {
+          console.error("Error loading filters:", err);
+        }
+      }
+
+      window.onload = populateFilters;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Membership Management</title>
+  <script src="../backend/membership.js"></script>
+  <link rel="stylesheet" href="assets/membershipManagement.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" />
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+  <div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6 text-center">Membership Management</h1>
+
+    <div class="flex justify-end mb-4">
+      <button id="openFormBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+        Add New Membership
+      </button>
+    </div>
+
+    <div class="overflow-x-auto shadow rounded bg-white">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">ID</th>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Name</th>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Fee ($)</th>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Description</th>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="membershipTableBody" class="bg-white divide-y divide-gray-200">
+      
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const apiURL = 'http://localhost:3002/api/memberships';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchMemberships();
+
+      document.getElementById('openFormBtn').addEventListener('click', async () => {
+        //const id = prompt("Enter Membership ID:");
+        const name = prompt("Enter Name:");
+        const fee = prompt("Enter Fee:");
+        const desc = prompt("Enter Description:");
+        if ( name && fee && desc) {
+          await addMembership({  membershipName: name, fee, membershipDescription: desc });
+        }
+      });
+    });
+
+    async function fetchMemberships() {
+      const res = await fetch(apiURL);
+      const memberships = await res.json();
+      const table = document.getElementById('membershipTableBody');
+      table.innerHTML = '';
+      memberships.forEach(m => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4">${m.membershipId}</td>
+          <td class="px-6 py-4">${m.membershipName}</td>
+          <td class="px-6 py-4">${m.fee}</td>
+          <td class="px-6 py-4">${m.membershipDescription}</td>
+          <td class="px-6 py-4">
+            <button class="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded" onclick="editMembership(${m.membershipId})">Edit</button>
+            <button class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded ml-2" onclick="deleteMembership(${m.membershipId})">Delete</button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    async function addMembership(data) {
+      const res = await fetch(apiURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) {
+        alert("Membership added.");
+        fetchMemberships();
+       /* const table = document.getElementById('membershipTableBody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td class="px-6 py-4">${newMembership.membershipId}</td>
+      <td class="px-6 py-4">${newMembership.membershipName}</td>
+      <td class="px-6 py-4">${newMembership.fee}</td>
+      <td class="px-6 py-4">${newMembership.membershipDescription}</td>
+      <td class="px-6 py-4">
+        <button class="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded" onclick="editMembership(${newMembership.membershipId})">Edit</button>
+        <button class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded ml-2" onclick="deleteMembership(${newMembership.membershipId})">Delete</button>
+      </td>
+    `;
+    table.appendChild(row);*/
+      } else {
+        alert("Error adding membership.");
+      }
+    }
+
+    async function editMembership(id) {
+      const name = prompt("New Name:");
+      const fee = prompt("New Fee:");
+      const desc = prompt("New Description:");
+      if (name && fee && desc) {
+        const res = await fetch(`${apiURL}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ membershipName: name, fee, membershipDescription: desc })
+        });
+        if (res.ok) {
+          alert("Membership updated.");
+          fetchMemberships();
+        } else {
+          alert("Error updating membership.");
+        }
+      }
+    }
+
+    async function deleteMembership(id) {
+      if (confirm("Are you sure you want to delete this membership?")) {
+        const res = await fetch(`${apiURL}/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          alert("Membership deleted.");
+          fetchMemberships();
+        } else {
+          alert("Error deleting membership.");
+        }
+      }
+    }
+  </script>
+  
+
+</body>
+</html>
